@@ -1,6 +1,6 @@
 ﻿using EFTest.Models;
 using EFTest.Services;
-using Utils;
+using ConsoleInteractions;
 #nullable disable warnings
 
 BlogService BlogService = new(new BloggingContext());
