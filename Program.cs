@@ -1,19 +1,20 @@
 ﻿using EFTest.Models;
 using EFTest.Services;
+using Utils;
 #nullable disable warnings
 
 BlogService BlogService = new(new BloggingContext());
-string option;
+char option;
 
 do
 {
     PrintMenu();
-    option = Console.ReadLine();
+    option = Interactions.CharInput();
     Console.Clear();
 
     switch (option)
     {
-        case "1":
+        case '1':
             Console.WriteLine("Getting blogs list...");
             Console.WriteLine("-----------------");
             List<Blog> blogs = await BlogService.GetBlogsAsync();
@@ -22,55 +23,79 @@ do
                 Console.WriteLine(item);
             }
             break;
-        case "2":
-            Console.Write("Enter the blog id: ");
-            int id = int.Parse(Console.ReadLine());
-            Console.WriteLine("Getting blog...");
-            Blog? blog = await BlogService.GetBlogAsync(id);
-            if (blog != null)
+        case '2':
+            int id = Interactions.IntInput("Enter the blog id: ");
+            try
             {
-                Console.WriteLine(blog.Url);
+                Console.WriteLine("Getting blog...");
+                Blog blog = await BlogService.GetBlogAsync(id);
+                Console.WriteLine(blog);
                 foreach (Post post in blog.Posts)
                 {
                     Console.WriteLine($"-  {post}");
                 }
-            }
-            else
-            {
-                Console.WriteLine("Blog not found");
-            }
-
-            break;
-        case "3":
-
-            Console.Write("Enter the blog url: ");
-            string url = Console.ReadLine();
-            Console.WriteLine("Creating blog...");
-            await BlogService.CreateBlogAsync(url);
-            Console.WriteLine("Blog created");
-
-            break;
-        case "4":
-
-            Console.Write("Enter the blog id: ");
-            id = int.Parse(Console.ReadLine());
-            Console.Write("Enter the new url: ");
-            url = Console.ReadLine();
-            try
-            {
-                Console.WriteLine("Updating blog...");
-                await BlogService.UpdateBlogAsync(id, url);
-                Console.WriteLine("Blog updated");
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
             break;
-        case "5":
+        case '3':
 
-            Console.Write("Enter the blog id: ");
-            id = int.Parse(Console.ReadLine());
+            Console.Write("Enter the blog url: ");
+            string url = Console.ReadLine();
+            Console.Write("Enter the blog owner: ");
+            string owner = Console.ReadLine();
+            Console.WriteLine("Creating blog...");
+            await BlogService.CreateBlogAsync(url, owner);
+            Console.WriteLine("Blog created");
+
+            break;
+        case '4':
+
+            id = Interactions.IntInput("Enter the blog id: ");
+            Console.WriteLine("What do you want to update?");
+            Console.WriteLine("A. Blog url");
+            Console.WriteLine("B. Blog owner");
+            char updateOption = Interactions.CharInput();
+            if (updateOption == 'A')
+            {
+                Console.Write("Enter the new url: ");
+                url = Console.ReadLine();
+                try
+                {
+                    Console.WriteLine("Updating blog...");
+                    await BlogService.UpdateBlogAsync(id, url);
+                    Console.WriteLine("Blog updated");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            else if (updateOption == 'B')
+            {
+                Console.Write("Enter the new owner: ");
+                owner = Console.ReadLine();
+                try
+                {
+                    Console.WriteLine("Updating blog...");
+                    await BlogService.UpdateBlogAsync(id, owner);
+                    Console.WriteLine("Blog updated");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid option");
+            }
+            break;
+        case '5':
+
+            id = Interactions.IntInput("Enter the blog id: ");
             Console.Write("Enter the post title: ");
             string title = Console.ReadLine();
             Console.Write("Enter the post content: ");
@@ -86,9 +111,9 @@ do
                 Console.WriteLine(ex.Message);
             }
             break;
-        case "6":
-            Console.Write("Enter the blog id: ");
-            id = int.Parse(Console.ReadLine());
+        case '6':
+            Console.Write("");
+            id = Interactions.IntInput("Enter the blog id: ");
             try
             {
                 Console.WriteLine("Deleting blog...");
@@ -100,7 +125,7 @@ do
                 Console.WriteLine(ex.Message);
             }
             break;
-        case "7":
+        case '7':
             Console.WriteLine("Goodbye!");
             break;
         default:
@@ -110,7 +135,7 @@ do
     Console.ReadLine();
     Console.Clear();
 
-} while (option != "7");
+} while (option != '7');
 
 static void PrintMenu()
 {

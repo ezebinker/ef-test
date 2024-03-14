@@ -10,17 +10,23 @@ public class BlogService(BloggingContext context)
         return await context.Blogs.Include(blog => blog.Posts).ToListAsync();
     }
 
-    public async Task<Blog?> GetBlogAsync(int id)
+    public async Task<Blog> GetBlogAsync(int id)
     {
-        return await context.Blogs
+        Blog? blog = await context.Blogs
             .Where(blog => blog.BlogId == id)
             .Include(blog => blog.Posts)
             .FirstOrDefaultAsync();
+
+        if (blog == null)
+        {
+            throw new NotFoundException("Blog not found");
+        }
+        return blog;
     }
 
-    public async Task<Blog> CreateBlogAsync(string url)
+    public async Task<Blog> CreateBlogAsync(string url, string owner)
     {
-        var blog = new Blog { Url = url };
+        var blog = new Blog { Url = url, Owner = owner };
         context.Blogs.Add(blog);
         await context.SaveChangesAsync();
         return blog;
@@ -34,7 +40,7 @@ public class BlogService(BloggingContext context)
             blog.Url = url;
             await context.SaveChangesAsync();
         }
-        else 
+        else
         {
             throw new NotFoundException("Blog not found");
         }
